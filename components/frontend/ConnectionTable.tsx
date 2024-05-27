@@ -1,81 +1,13 @@
-// 'use client'
-// import {
-//     Table,
-//     TableBody,
-//     TableCaption,
-//     TableCell,
-//     TableFooter,
-//     TableHead,
-//     TableHeader,
-//     TableRow,
-//   } from "@/components/ui/table"
-// import { useEffect, useState } from "react"
-  
-//   export default function ConnectionTable() {
-
-//     const [contacts, setContacts] = useState([])
-//     const [loading, setLoading] = useState(true)
-
-//     useEffect(() => {
-//         const fetchData = async () => {
-//             try {
-//               const response = await fetch('/api/contacts');
-//               const result = await response.json();
-//               setContacts(result);
-//               setLoading(false);
-//             } catch (error) {
-//               console.error('Error fetching data:', error);
-//               setLoading(false);
-//             }
-//           };
-      
-//           fetchData();
-//           // console.log(data)
-//     }, [])
-
-//     if (loading) {
-//       return (
-//         <div>Loading...</div>
-//       )
-//     }
-
-//     return (
-//       <Table>
-//         {/* <TableHeader>
-//           <TableRow>
-//             <TableHead className="w-[100px]">Name</TableHead>
-//             <TableHead>Bio</TableHead>
-//             <TableHead className="text-right">Connection Date</TableHead>
-//           </TableRow>
-//         </TableHeader> */}
-//         <TableBody>
-//           {contacts.map((contact) => (
-//             <TableRow key={contact.id}>
-//               <TableCell className="font-medium">{contact.name}</TableCell>
-//               <TableCell>{contact.bio}</TableCell>
-//               <TableCell className="text-right">{contact.connection_date}</TableCell>
-//             </TableRow>
-//           ))}
-//         </TableBody>
-//       </Table>
-//     )
-//   }
-  
-
-
-
 "use client"
 
 import * as React from "react"
-import {useState, useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import {
   CaretSortIcon,
   ChevronDownIcon,
-  DotsHorizontalIcon,
 } from "@radix-ui/react-icons"
 import {
   ColumnDef,
-  ColumnFiltersState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -97,7 +29,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import {
   Table,
   TableBody,
@@ -107,23 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-const data: Contact[] = [
-  {
-    id: 1,
-    name: "aashi",
-    img_link: "link",
-    bio: "Software Engineer",
-    connection_date: "Connected 1 day ago"
-  }
-]
-
-export type Contact = {
-  id: number
-  name: string
-  img_link: string
-  bio: string
-  connection_date: string
-}
+import { Contact } from "@/app/types/contact"
 
 export const columns: ColumnDef<Contact>[] = [
   {
@@ -149,16 +64,7 @@ export const columns: ColumnDef<Contact>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "img_link",
-    header: "",
-    cell: ({ row }) => (
-      <svg
-      viewBox="0 0 100 100">
-        <image href={row.getValue("img_link")}/>
-      </svg>
-    ),
-  },
-  {
+    id: 'name_bio',
     accessorKey: "name",
     header: ({ column }) => {
       return (
@@ -171,82 +77,55 @@ export const columns: ColumnDef<Contact>[] = [
         </Button>
       )
     },
-    cell: ({ row }) => <div>{row.getValue("name")}</div>,
-  },
-  {
-    accessorKey: "bio",
-    header: () => <div>Bio</div>,
-    cell: ({ row }) => <div>{row.getValue("bio")}</div>
+    cell: ({ row }) => (
+      <div className="md:flex md:items-center md:space-x-5">
+        <div className="flex-shrink-0">
+          <div className="relative">
+            <img
+              className="h-12 w-12 rounded-full"
+              src={row.original.img_link}
+              alt=""
+            />
+            <span className="absolute inset-0 rounded-full shadow-inner" aria-hidden="true" />
+          </div>
+        </div>
+        <div className="pt-1.5">
+          <h1 className="text-md font-medium text-gray-900">{row.original.name}</h1>
+          <p className="text-sm font-medium text-gray-500">
+            {row.original.bio}
+          </p>
+        </div>
+      </div>
+    ),
   },
   {
     accessorKey: "connection_date",
     header: () => <div className="text-right">Connection Date</div>,
-    cell: ({ row }) => <div>{row.getValue("connection_date")}</div>
+    cell: ({ row }) => <div className="text-right">{row.getValue("connection_date")}</div>,
   },
-  // {
-  //   id: "actions",
-  //   enableHiding: false,
-  //   cell: ({ row }) => {
-  //     const payment = row.original
-
-  //     return (
-  //       <DropdownMenu>
-  //         <DropdownMenuTrigger asChild>
-  //           <Button variant="ghost" className="h-8 w-8 p-0">
-  //             <span className="sr-only">Open menu</span>
-  //             <DotsHorizontalIcon className="h-4 w-4" />
-  //           </Button>
-  //         </DropdownMenuTrigger>
-  //         <DropdownMenuContent align="end">
-  //           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-  //           <DropdownMenuItem
-  //             onClick={() => navigator.clipboard.writeText(payment.id)}
-  //           >
-  //             Copy payment ID
-  //           </DropdownMenuItem>
-  //           <DropdownMenuSeparator />
-  //           <DropdownMenuItem>View customer</DropdownMenuItem>
-  //           <DropdownMenuItem>View payment details</DropdownMenuItem>
-  //         </DropdownMenuContent>
-  //       </DropdownMenu>
-  //     )
-  //   },
-  // },
 ]
 
-export default function ConnectionTable() {
+interface ConnectionTableProps {
+  data: Contact[];
+}
+
+const ConnectionTable: React.FC<ConnectionTableProps> = ({ data }) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  const [contacts, setContacts] = useState<Contact[]>([])
+  const [contacts, setContacts] = useState(data)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-      const fetchData = async () => {
-          try {
-            const response = await fetch('/api/contacts');
-            const result = await response.json();
-            setContacts(result);
-            setLoading(false);
-          } catch (error) {
-            console.error('Error fetching data:', error);
-            setLoading(false);
-          }
-        };
-    
-        fetchData();
+  useEffect (() => {
+    setLoading(false)
   }, [])
+
 
   const table = useReactTable({
     data: contacts,
     columns,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -255,23 +134,18 @@ export default function ConnectionTable() {
     onRowSelectionChange: setRowSelection,
     state: {
       sorting,
-      columnFilters,
       columnVisibility,
       rowSelection,
     },
   })
 
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
-        {/* <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        /> */}
+      {/* <div className="flex items-center py-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -298,7 +172,7 @@ export default function ConnectionTable() {
               })}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </div> */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -376,3 +250,4 @@ export default function ConnectionTable() {
     </div>
   )
 }
+export default ConnectionTable
