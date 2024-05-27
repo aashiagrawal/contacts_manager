@@ -4,10 +4,10 @@ import * as React from "react"
 import { useState, useEffect } from 'react'
 import {
   CaretSortIcon,
-  ChevronDownIcon,
 } from "@radix-ui/react-icons"
 import {
   ColumnDef,
+  ColumnFiltersState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -21,15 +21,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
   Table,
   TableBody,
   TableCell,
@@ -39,6 +30,7 @@ import {
 } from "@/components/ui/table"
 
 import { Contact } from "@/app/types/contact"
+import { Input } from "../ui/input"
 
 export const columns: ColumnDef<Contact>[] = [
   {
@@ -64,7 +56,7 @@ export const columns: ColumnDef<Contact>[] = [
     enableHiding: false,
   },
   {
-    id: 'name_bio',
+    // id: 'name_bio',
     accessorKey: "name",
     header: ({ column }) => {
       return (
@@ -111,10 +103,12 @@ interface ConnectionTableProps {
 
 const ConnectionTable: React.FC<ConnectionTableProps> = ({ data }) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  const [contacts, setContacts] = useState(data)
   const [loading, setLoading] = useState(true)
 
   useEffect (() => {
@@ -123,9 +117,10 @@ const ConnectionTable: React.FC<ConnectionTableProps> = ({ data }) => {
 
 
   const table = useReactTable({
-    data: contacts,
+    data: data,
     columns,
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -135,6 +130,7 @@ const ConnectionTable: React.FC<ConnectionTableProps> = ({ data }) => {
     state: {
       sorting,
       columnVisibility,
+      columnFilters,
       rowSelection,
     },
   })
@@ -145,34 +141,18 @@ const ConnectionTable: React.FC<ConnectionTableProps> = ({ data }) => {
 
   return (
     <div className="w-full">
-      {/* <div className="flex items-center py-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                )
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div> */}
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Filter contacts..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("name")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        />
+      </div>
+
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
