@@ -152,7 +152,6 @@ const ConnectionTable: React.FC<ConnectionTableProps> = ({ data }) => {
         />
       </div>
 
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>

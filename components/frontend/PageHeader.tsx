@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from "../ui/button";
+import { AddContactDialog } from "./AddContactDialog";
 
 interface PageHeaderProps {
   numRows: number;
@@ -21,9 +22,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ numRows }) => {
       </div>
       <div className="mt-5 flex lg:ml-4 lg:mt-0">
         <span className="sm:ml-3">
-          <Button>
-            + Add new contact
-          </Button>
+          <AddContactDialog/>
         </span>
       </div>
     </div>

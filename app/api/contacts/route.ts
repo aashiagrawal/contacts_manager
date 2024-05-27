@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const connections = body.connections;
 
-        
+        console.log("this is body: ", body)
         if (!Array.isArray(connections) || connections.length === 0) {
             return NextResponse.json({ error: "No connections provided" }, { status: 400 });
         }
