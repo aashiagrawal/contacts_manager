@@ -58,6 +58,9 @@ export default function Home() {
   return (
     <div className="flex justify-center">
       <div className="w-4/5">
+        <div className="flex justify-end mt-5">
+          <ModeToggle/>
+        </div>
         <PageHeader numRows={contacts.length}/>
         <form onSubmit={handleSubmit} className="mt-5">
             <Input
