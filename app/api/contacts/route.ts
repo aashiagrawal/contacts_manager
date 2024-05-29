@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
                 where: {
                     name_img_link: {
                         name: name, 
-                            img_link: img_link
+                        img_link: img_link
                         }
                     }
             });

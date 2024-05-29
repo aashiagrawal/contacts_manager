@@ -21,6 +21,15 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import {
   Table,
   TableBody,
   TableCell,
@@ -82,7 +91,7 @@ export const columns: ColumnDef<Contact>[] = [
           </div>
         </div>
         <div className="pt-1.5">
-          <h1 className="text-md font-medium text-gray-900">{row.original.name}</h1>
+          <h1 className="text-md font-medium">{row.original.name}</h1>
           <p className="text-sm font-medium text-gray-500">
             {row.original.bio}
           </p>
@@ -108,8 +117,8 @@ const ConnectionTable: React.FC<ConnectionTableProps> = ({ data }) => {
   )
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-
   const [loading, setLoading] = useState(true)
+  const [queryText, setQueryText] = useState("")
 
   useEffect (() => {
     setLoading(false)
@@ -139,17 +148,46 @@ const ConnectionTable: React.FC<ConnectionTableProps> = ({ data }) => {
     return <div>Loading...</div>
   }
 
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch('/api/openai', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(queryText)
+      })
+
+      if (!response.ok) {
+          console.log("entered error")
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to send POST request');
+      }
+      data = await response.json()
+      console.log("this is data: ", data)
+    } catch (error) {
+        console.log("Failed to create new contact")
+    }
+  }
+
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter contacts..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+      <div className="grid grid-flow-row grid-cols-2">
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="Filter contacts..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+
+        <div className="flex justify-end items-center py-4">
+        </div>
       </div>
 
       <div className="rounded-md border">

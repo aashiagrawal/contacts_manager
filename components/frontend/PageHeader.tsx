@@ -2,6 +2,7 @@
 
 import { Button } from "../ui/button";
 import { AddContactDialog } from "./AddContactDialog";
+import { ModeToggle } from "./ModeToggle";
 
 interface PageHeaderProps {
   numRows: number;
@@ -9,9 +10,9 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({ numRows }) => {
   return (
-    <div className="lg:flex lg:items-center lg:justify-between mt-10">
+    <div className="lg:flex lg:items-center lg:justify-between mt-5">
       <div className="min-w-0 flex-1">
-        <h2 className="text-2xl font-medium leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+        <h2 className="text-2xl font-medium leading-7 sm:truncate sm:text-3xl sm:tracking-tight">
           All contacts
         </h2>
         <div className="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
